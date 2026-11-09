@@ -4,6 +4,33 @@
 >
 > 这个仓库记的是**实测走通的路径和踩过的坑**，不是厂商文档的复述。所有"结论"后面都附了我这边量到的数字，你的环境会不一样，同一个测速脚本就在 `scripts/` 里。
 
+## TL;DR (English)
+
+Migrating a **1 TB+ Baidu Pan** library to **Quark Pan** on Windows, **without** buying CloudDrive2 Pro.
+
+**There is no free cloud-to-cloud path.** CloudDrive2's own docs say *"Cross-cloud copying is a Core Pro feature"* — and Quark is not one of its 9 supported providers to begin with, so Baidu→Quark cloud-to-cloud does not exist even on Pro.
+
+What actually works:
+
+- **Route A (supported, simple):** let free CloudDrive2 pull Baidu → a local folder, then push that folder → Quark through AList's WebDAV. Both legs are free because one end is local. Needs 2× disk space while a batch runs.
+- **Route B (the scripts here):** mount Baidu with free CloudDrive2, then stream each file straight from the mounted drive to Quark. Nothing lands on disk except the one file AList spools in order to hash it.
+
+Measured on a home line (Nov 2026):
+
+| Metric | Value |
+|---|---|
+| Baidu → PC read | 29.8 MB/s |
+| PC → Quark upload, 1 connection | 2.75 MB/s |
+| PC → Quark upload, **4 in parallel** | **5.64 MB/s (2.84×)** |
+| Per-file overhead (small files) | ~2.2 s/file |
+| 1 TB at 4-way parallelism | **~52 h** |
+
+The upload cap is **per connection, not per line**, so parallelism is the only tuning that matters. `scripts/transfer/transfer.ps1` keeps 4 uploads in flight, resumes by comparing remote sizes, and was verified end-to-end (Chinese paths, nested dirs, empty dirs, resume) against a real Quark account through AList.
+
+Scripts are ASCII-only PowerShell 5.1 with double-clickable `.bat` wrappers; credentials live in a gitignored `config.txt`, never in this repo.
+
+**Not done yet:** a full 1 TB run, and paths longer than 260 characters are not handled.
+
 ## 先说结论
 
 | 你可能以为 | 实际情况 |
