@@ -35,3 +35,10 @@ RESUME_CHECK=1
 # Optional: a local file used for the speed test (probe-webdav.ps1).
 # If empty, the probe picks a >=20MB file from SOURCE_DIR automatically.
 TEST_FILE=
+
+# ===== Optional: explicit paths =====
+# Only needed if status.ps1 cannot find the programs on its own.
+# It probes D:/E:/C:\alist, %LOCALAPPDATA%\AList, Program Files, and the usual
+# CloudDrive2 locations; set these to override.
+ALIST_EXE=
+CLOUDDRIVE_EXE=

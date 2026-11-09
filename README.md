@@ -137,21 +137,66 @@ CloudDrive2 官方文档原文（[Core features · Cross-cloud copying](https://
 :: 1. 装 AList（自动下载、解压、设临时目录、注册开机任务、只监听本机）
 scripts\install-alist.bat
 
-:: 2. 装好 CloudDrive2，把百度挂成 B:、把夸克 WebDAV 也加进去
+:: 2. 浏览器打开 http://127.0.0.1:5244 ，挂载夸克
+::    账号 admin，密码在安装目录的 ALIST-CREDENTIALS.txt 里（脚本跑完也会打印）
+::    怎么挂见下一节
+
+:: 3. 装好 CloudDrive2，把百度挂成 B:、把夸克 WebDAV 也加进去
 ::    然后确认环境还活着（会自动拉起 AList / CD2）
 scripts\status.bat
 
-:: 3. 测一下你的实际速度，顺便确认夸克可写
-copy scripts\config.example.txt scripts\config.txt   &&  notepad scripts\config.txt
+:: 4. 测你自己的实际速度，顺便确认夸克可写
+copy scripts\config.example.txt scripts\config.txt
+notepad scripts\config.txt
 scripts\probe-webdav.bat
 ```
 
-跑完第 3 步会得到 `scripts\probe-result.txt`，里面有**你自己线路的**读写速度和每文件开销。**先看这个再决定要不要搬**。
+`config.txt` 要改的就四项：
+
+| 键 | 填什么 |
+|---|---|
+| `ALIST_PASS` | 第 1 步生成的密码（见 `ALIST-CREDENTIALS.txt`） |
+| `SOURCE_DIR` | 你的百度挂载目录，例如 `B:\百度网盘\某目录` |
+| `DEST_SUBDIR` | 夸克上的目标文件夹，例如 `migrated` |
+| `PARALLEL` | 同时在传的文件数，默认 4 |
+
+跑完第 4 步会得到 `scripts\probe-result.txt`，里面有**你自己线路的**读写速度和每文件开销。**先看这个再决定要不要搬。**
+
+## 在 AList 里挂载夸克（最容易卡住的一步）
+
+打开 `http://127.0.0.1:5244` 登录（账号 `admin`，密码见安装目录的 `ALIST-CREDENTIALS.txt`）。
+
+**管理 → 存储 → 添加**，按这张表填：
+
+| 字段 | 填什么 |
+|---|---|
+| 驱动 | `夸克网盘` / `Quark` |
+| 挂载路径 | `/quark` ← **必须是这个**，脚本里的 URL 按它写死了 |
+| 根文件夹 ID | `0`（挂整个网盘；只挂某个目录就填那个目录的 ID） |
+| Cookie | 见下面 |
+| WebDAV 策略 | 推荐「302 重定向」或「使用代理」，只管下载，不影响上传 |
+
+### Cookie 怎么拿
+
+1. **Chrome** 打开 <https://pan.quark.cn>，确认已经登录
+2. 按 `F12` → 切到 **Network / 网络** 标签
+3. 刷新页面，点左边任意一条请求
+4. 右侧 `Request Headers` 里找到 `Cookie:`，**整行的值全部复制**
+5. 粘进 AList 的 Cookie 框 → 保存
+
+保存后点开 `/quark`，应该能看到你自己网盘里的文件。看不到就是 Cookie 没抓对，重抓。
+
+### 两个会让新人白干一整晚的坑
+
+- **必须用 Chrome 抓**。AList 官方文档明确写了：Firefox 抓的 cookie 可能仍是访客态，保存后 AList 里看不到你的文件。
+- **别用「夸克TV」驱动的扫码登录**。扫码看着省事，但官方文档写明它**只支持列目录和下载，不支持上传**——而我们要的偏偏是上传。所以只能用 `夸克网盘` + Cookie。
+
+官方文档：[AList · Quark](https://alistgo.com/guide/drivers/quark.html)
 
 ## 路线 A 步骤
 
 1. **装 AList**：用 `scripts/install-alist.ps1`（会自动下载、解压、注册开机任务、设临时目录、默认只监听 `127.0.0.1`）
-2. **AList 里加夸克**：存储 → 添加 → 类型 `夸克网盘` → 填 cookie → 挂载路径 `/quark`
+2. **AList 里加夸克**：见上一节「在 AList 里挂载夸克」，挂载路径必须是 `/quark`
 3. **CD2 加三个东西**
    - 云盘：`百度网盘`（扫码登录）
    - 云盘：`WebDAV` → 地址 `http://127.0.0.1:5244/dav/quark`，用户密码用 AList 的

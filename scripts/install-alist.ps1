@@ -13,7 +13,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$InstallDir = 'D:\alist',
+    [string]$InstallDir = '',
     [int]$Port = 5244,
     [string]$ZipPath = '',
     [string]$BindAddress = '127.0.0.1',
@@ -21,6 +21,15 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+
+# Prefer a data drive (AList spools whole files into temp_dir) but never assume
+# D: exists - plenty of machines only have C:.
+if (-not $InstallDir) {
+    if (Test-Path -LiteralPath 'D:\') { $InstallDir = 'D:\alist' }
+    elseif (Test-Path -LiteralPath 'E:\') { $InstallDir = 'E:\alist' }
+    else { $InstallDir = (Join-Path $env:SystemDrive 'AList') }
+}
+$InstallDir = [IO.Path]::GetFullPath($InstallDir).TrimEnd('\')
 
 # ---------- self-elevate ----------
 $id = [Security.Principal.WindowsIdentity]::GetCurrent()

@@ -64,9 +64,28 @@ if ($pingUrl) {
 }
 
 if (-not $alive) {
-    $cands = @('D:\alist\alist.exe', 'C:\alist\alist.exe', (Join-Path $env:ProgramFiles 'alist\alist.exe'))
+    # ALIST_EXE in config.txt wins; otherwise probe the usual spots. Do not
+    # assume D: exists - install-alist.ps1 falls back to C:\AList on machines
+    # without a second drive.
+    $cands = New-Object System.Collections.Generic.List[string]
+    $cfgExe = [string]$cfg['ALIST_EXE']
+    if ($cfgExe) { $cands.Add($cfgExe) }
+    foreach ($root in @('D:\', 'E:\', 'C:\')) {
+        if (Test-Path -LiteralPath $root) {
+            $cands.Add((Join-Path $root 'alist\alist.exe'))
+            $cands.Add((Join-Path $root 'AList\alist.exe'))
+        }
+    }
+    if ($env:LOCALAPPDATA) { $cands.Add((Join-Path $env:LOCALAPPDATA 'AList\alist.exe')) }
+    if ($env:ProgramFiles) { $cands.Add((Join-Path $env:ProgramFiles 'alist\alist.exe')) }
+    if (${env:ProgramFiles(x86)}) { $cands.Add((Join-Path ${env:ProgramFiles(x86)} 'alist\alist.exe')) }
     $exe = $null
     foreach ($c in $cands) { if (Test-Path -LiteralPath $c) { $exe = $c; break } }
+    if (-not $exe) {
+        P '  alist.exe not found. Looked in:'
+        foreach ($c in $cands) { P ('    ' + $c) }
+        P '  >>> run install-alist.bat, or set ALIST_EXE=<full path to alist.exe> in config.txt'
+    }
     if ($exe) {
         $data = Join-Path (Split-Path -Parent $exe) 'data'
         P ('  starting: ' + $exe + ' server --data ' + $data)
@@ -83,8 +102,6 @@ if (-not $alive) {
                 $alive = $true
             } catch { P '  still not responding after start' }
         }
-    } else {
-        P '  alist.exe not found - run install-alist.ps1 first'
     }
 }
 P ''
@@ -96,8 +113,15 @@ if ($cd2) {
     P ('  running, PID ' + $cd2.Id)
 } else {
     $exe2 = $null
-    foreach ($c in @((Join-Path $env:ProgramFiles 'CloudDrive\CloudDrive.exe'), 'C:\Program Files\CloudDrive\CloudDrive.exe')) {
-        if (Test-Path -LiteralPath $c) { $exe2 = $c; break }
+    $cd2Cands = New-Object System.Collections.Generic.List[string]
+    $cfgCd2 = [string]$cfg['CLOUDDRIVE_EXE']
+    if ($cfgCd2) { $cd2Cands.Add($cfgCd2) }
+    if ($env:ProgramFiles) { $cd2Cands.Add((Join-Path $env:ProgramFiles 'CloudDrive\CloudDrive.exe')) }
+    if (${env:ProgramFiles(x86)}) { $cd2Cands.Add((Join-Path ${env:ProgramFiles(x86)} 'CloudDrive\CloudDrive.exe')) }
+    if ($env:LOCALAPPDATA) { $cd2Cands.Add((Join-Path $env:LOCALAPPDATA 'Programs\CloudDrive\CloudDrive.exe')) }
+    $cd2Cands.Add('C:\Program Files\CloudDrive\CloudDrive.exe')
+    foreach ($c in $cd2Cands) {
+        if ($c -and (Test-Path -LiteralPath $c)) { $exe2 = $c; break }
     }
     if ($exe2) {
         P ('  not running, starting ' + $exe2)
@@ -105,6 +129,7 @@ if ($cd2) {
         Start-Sleep -Seconds 15
     } else {
         P '  not running and CloudDrive.exe not found'
+        P '  >>> install CloudDrive2, or set CLOUDDRIVE_EXE=<full path> in config.txt'
     }
 }
 P ''
