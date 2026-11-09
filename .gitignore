@@ -1,0 +1,23 @@
+# 凭据：绝不提交
+config.txt
+*.log
+log/
+probe*.txt
+*-scan.txt
+rclone.conf
+
+# 本机运行输出（含路径/凭据痕迹）
+*-result.txt
+*-console.txt
+status.txt
+ALIST-CREDENTIALS.txt
+
+# 本地临时
+temp/
+relay/
+_probe_/
+
+# 系统
+Thumbs.db
+desktop.ini
+.DS_Store
