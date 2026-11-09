@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo Probing AList WebDAV (write test + speed)... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0probe-webdav.ps1" & echo. & echo === Done. Press any key. === & pause

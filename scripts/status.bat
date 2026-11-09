@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo Checking / starting AList and CloudDrive2... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0status.ps1" & echo. & echo === Done. Press any key. === & pause

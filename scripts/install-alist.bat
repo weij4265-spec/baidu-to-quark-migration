@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo Installing / repairing AList... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-alist.ps1" & echo. & echo === Done. Press any key. === & pause

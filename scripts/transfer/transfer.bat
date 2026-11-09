@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo Streaming transfer to AList WebDAV... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0transfer.ps1" & echo. & echo === Done. Press any key. === & pause

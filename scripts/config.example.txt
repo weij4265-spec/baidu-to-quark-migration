@@ -1,0 +1,37 @@
+# Copy this file to config.txt (same folder) and edit it.
+# config.txt is gitignored - never commit real credentials.
+#
+# NOTE: this file is read as UTF-8, so Chinese paths work here
+#       even though the .ps1 sources are ASCII-only.
+
+# ===== AList WebDAV =====
+# Quark is exposed through AList, so the endpoint is AList's WebDAV path.
+ALIST_URL=http://127.0.0.1:5244/dav/quark
+ALIST_USER=admin
+ALIST_PASS=CHANGE_ME
+
+# ===== Route B (direct streaming) settings =====
+# Source root. Usually a CloudDrive2 mount of Baidu Pan, e.g. B:\<whatever>
+SOURCE_DIR=B:\CHANGE_ME
+
+# Destination sub-folder on Quark (leave empty to write to the Quark root)
+DEST_SUBDIR=migrated
+
+# Safety caps for a pilot run. 0 = unlimited.
+MAX_FILES=20
+MAX_FILE_MB=0
+
+# How many uploads to keep in flight.
+# Measured on one home line: 4 in flight gave 2.84x over strictly sequential
+# (1.98 -> 5.64 MB/s). The cap is per connection, so this number matters more
+# than anything else in this file. Try 4, then 8 if your line allows.
+PARALLEL=4
+
+# Skip files whose remote size already matches. Costs one extra HEAD round trip
+# per file - great when resuming an interrupted run, pure overhead on a fresh
+# one. Set to 0 for a fresh full run over tens of thousands of files.
+RESUME_CHECK=1
+
+# Optional: a local file used for the speed test (probe-webdav.ps1).
+# If empty, the probe picks a >=20MB file from SOURCE_DIR automatically.
+TEST_FILE=

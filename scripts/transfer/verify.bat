@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo [1/2] transfer pilot... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0transfer.ps1" & echo. & echo [2/2] verify what landed on the destination... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0report.ps1" & echo. & echo === Verification finished. Press any key. === & pause

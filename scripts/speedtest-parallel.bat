@@ -1,0 +1,1 @@
+@echo off & chcp 65001 >nul & echo Testing sequential vs 4-way concurrent upload (~40 s, RAM payloads)... & powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0speedtest-parallel.ps1" > "%~dp0speedtest-console.txt" 2>&1 & type "%~dp0speedtest-console.txt" & echo. & echo === Done. Files: speedtest-para-result.txt / speedtest-console.txt === & pause
